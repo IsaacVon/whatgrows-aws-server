@@ -1,0 +1,4 @@
+{
+  "jwtPrivateKey": "urbanHomesteading_jwtPrivateKey",
+  "uri": "mongodb+srv://admin:Ivh@1994@whatgrows.ketnq.gcp.mongodb.net/WhatGrowsTest?retryWrites=true&w=majority"
+}
