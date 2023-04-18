@@ -47,7 +47,7 @@ router.post("/register", async (req, res) => {
 // getUser - Input jwt
 router.get("/me", auth, async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  let user = await User.findById(req.user._id).select("-password");
+  const user = await User.findById(req.user._id).select("-password");
   res.send(user);
 });
 
