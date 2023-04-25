@@ -1,0 +1,53 @@
+name: Run Tests Workflow
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        required: true
+        type: string
+    secrets:
+      jwt_secret:
+        required: true
+      aws_access_key_id:
+        required: true
+      aws_secret_access_key:
+        required: true
+      aws_region:
+        required: true
+      dynamodb_endpoint:
+        required: true
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter (Checking Formatting)
+        run: npm run lint-check
+
+      - name: Run unit tests
+        run: npm test -- ./tests/unit
+        env:
+          JWT_SECRET: ${{ secrets.jwt_secret }}
+          AWS_REGION: ${{ secrets.aws_region }}
+          DYNAMODB_ENDPOINT: ${{ secrets.dynamodb_endpoint }}
+
+      - name: Run integration tests
+        run: npm test -- ./tests/integration
+        env:
+          JWT_SECRET: ${{ secrets.jwt_secret }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key_id }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_access_key }}
+          AWS_REGION: ${{ secrets.aws_region }}
+          DYNAMODB_ENDPOINT: ${{ secrets.dynamodb_endpoint }}
