@@ -123,7 +123,7 @@ describe('Protected Routes', () => {
   test('Access protected route with invalid token', async () => {
     const response = await request(app)
       .put(`/users/${user.id}`)
-      .set('Authorization', `Bearer invalidToken`)
+      .set('Authorization', 'Bearer invalidToken')
       .send({ email: 'john.new@example.com' });
 
     expect(response.status).toBe(401);

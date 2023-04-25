@@ -3,7 +3,12 @@
     "browser": true,
     "es2021": true
   },
-  "extends": "standard-with-typescript",
+  "extends": [
+    "standard-with-typescript",
+    "plugin:prettier/recommended",
+    "prettier"
+  ],
+  "plugins": ["prettier"],
   "overrides": [
     {
       "files": ["**/*.test.js"],
@@ -16,5 +21,7 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "rules": {}
+  "rules": {
+    "prettier/prettier": "error"
+  }
 }

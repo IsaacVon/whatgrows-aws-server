@@ -1,9 +1,5 @@
 const express = require('express');
 const {
-  connect,
-  disconnect,
-  createUser,
-  getUserByEmail,
   deleteUser,
   updateUserEmail,
   addFavoritePlant,
