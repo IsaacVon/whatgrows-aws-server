@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    uses: ./.github/workflows/run-tests-workflow.yml@main
+    uses: ./.github/workflows/run-tests-workflow.yml
     with:
       node-version: 18
     secrets:
