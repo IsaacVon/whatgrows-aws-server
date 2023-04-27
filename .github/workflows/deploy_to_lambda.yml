@@ -52,7 +52,12 @@ jobs:
         run: npm run build
 
       - name: Package for Lambda
-        run: zip -r lambda-package.zip .
+        run: |
+          mkdir deploy-package
+          cp -r dist deploy-package
+          cp -r node_modules deploy-package
+          cd deploy-package
+          zip -r ../lambda-package.zip .
 
       - name: Deploy to AWS Lambda
         uses: appleboy/lambda-action@v0.1.6

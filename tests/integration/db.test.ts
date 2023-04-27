@@ -1,4 +1,4 @@
-const {
+import {
   createUser,
   deleteUser,
   connect,
@@ -7,19 +7,25 @@ const {
   addFavoritePlant,
   removeFavoritePlant,
   updateFavoritePlantNote,
-} = require('../../src/db');
-require('dotenv').config();
+  User,
+  NewUser,
+} from '../../src/db';
+import 'dotenv/config';
 
 describe('Database connection', () => {
   test('should connect and disconnect successfully', async () => {
+    expect.assertions(1);
+
     try {
       await connect();
       await disconnect();
+      expect(true).toBeTruthy(); // Just an expectation to make sure the test reaches this point without errors
     } catch (error) {
       console.error(
         'Error connecting or disconnecting from the database:',
         error
       );
+      throw error; // Throw the error so the test fails
     }
   });
 });
@@ -34,43 +40,41 @@ describe('Database operations', () => {
   });
 
   describe('User Management', () => {
+    const user: NewUser = {
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      password: 'hashedPassword',
+    };
+
     test('should create a new user', async () => {
-      const user = {
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        password: 'hashedPassword',
-        favorites: [],
-      };
-
-      const createdUser = await createUser(user);
-
-      expect(createdUser).toHaveProperty('email');
-      expect(createdUser.name).toBe(user.name);
-      expect(createdUser.email).toBe(user.email);
+      const response = await createUser(user);
+      expect(response.password).toBeDefined();
+      expect(response.favorites).toBeDefined();
+      expect(response.password).not.toEqual(user.password); // confirm password gets hashed
+      expect(response.name).toEqual(user.name);
+      expect(response.email).toEqual(user.email);
     });
 
     test('should update a user email', async () => {
-      const oldEmail = 'john.doe@example.com';
+      const oldEmail = user.email;
       const newEmail = 'jane.doe@example.com';
 
-      const updatedUser = await updateUserEmail(oldEmail, newEmail, {
-        name: 'Jane Doe',
-        password: 'updatedHashedPassword',
-        favorites: [],
-      });
+      const updatedUser = await updateUserEmail(oldEmail, newEmail);
 
       expect(updatedUser).toHaveProperty('email');
-      expect(updatedUser.name).toBe('Jane Doe');
       expect(updatedUser.email).toBe(newEmail);
     });
 
     test('should delete a user', async () => {
-      const deletedUser = await deleteUser('1');
-      expect(deletedUser).toBeUndefined();
+      const response = await deleteUser(user.email);
+      expect(response).toEqual(
+        `User with email ${user.email} deleted successfully`
+      );
     });
   });
+
   describe('Favorite plants', () => {
-    let testUser;
+    let testUser: User;
 
     beforeAll(async () => {
       testUser = await createUser({
@@ -88,7 +92,7 @@ describe('Database operations', () => {
       const favoritePlant = {
         _id: '1',
         plantId: '1',
-        common_name: 'Test Plant',
+        commonName: 'Test Plant',
         notes: '',
         image: 'https://example.com/test-plant.jpg',
         plantUrl: 'https://example.com/test-plant',
@@ -112,7 +116,7 @@ describe('Database operations', () => {
       const favoritePlant = {
         _id: '2',
         plantId: '2',
-        common_name: 'Test Plant 2',
+        commonName: 'Test Plant 2',
         notes: '',
         image: 'https://example.com/test-plant-2.jpg',
         plantUrl: 'https://example.com/test-plant-2',
@@ -129,6 +133,11 @@ describe('Database operations', () => {
       const updatedPlant = updatedUser.favorites.find(
         plant => plant.plantId === favoritePlant.plantId
       );
+      if (updatedPlant) {
+        expect(updatedPlant.notes).toBe(newNote);
+      } else {
+        throw new Error('Updated plant not found');
+      }
       expect(updatedPlant.notes).toBe(newNote);
     });
   });

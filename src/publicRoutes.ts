@@ -1,11 +1,12 @@
-const express = require('express');
-const { createUser, getUserByEmail } = require('./db');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+import bcrypt from 'bcrypt';
+import express, { Router, Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 
-const router = express.Router();
+import { createUser, getUserByEmail } from './db';
 
-router.post('/users', async (req, res) => {
+const router: Router = express.Router();
+
+router.post('/users', async (req: Request, res: Response) => {
   try {
     const user = await createUser(req.body);
     res.status(201).json(user);
@@ -14,7 +15,7 @@ router.post('/users', async (req, res) => {
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
@@ -31,14 +32,17 @@ router.post('/login', async (req, res) => {
     }
 
     const payload = {
-      id: user.id,
       name: user.name,
       email: user.email,
     };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: '1h',
-    });
+    const token = jwt.sign(
+      payload,
+      process.env.JWT_SECRET?.toString() ?? 'default_secret',
+      {
+        expiresIn: '1h',
+      }
+    );
 
     res.status(200).json({ token });
   } catch (error) {
@@ -46,4 +50,4 @@ router.post('/login', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

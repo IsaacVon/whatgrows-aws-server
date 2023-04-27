@@ -1,19 +1,21 @@
-const request = require('supertest');
-const app = require('../../src/index');
-const jwt = require('jsonwebtoken');
-const {
+import supertest from 'supertest';
+import app from '../../src/index';
+import jwt from 'jsonwebtoken';
+import {
   getUserByEmail,
   updateUserEmail,
   deleteUser,
   addFavoritePlant,
   removeFavoritePlant,
   updateFavoritePlantNote,
-} = require('../../src/db');
-require('dotenv').config();
+  User,
+} from '../../src/db';
+import dotenv from 'dotenv';
+dotenv.config();
 
 jest.mock('../../src/db');
 
-const user = {
+const user: User = {
   id: '1',
   name: 'John Doe',
   email: 'john.doe@example.com',
@@ -21,7 +23,9 @@ const user = {
   favorites: [],
 };
 
-const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '1h' });
+const token = jwt.sign(user, process.env.JWT_SECRET as string, {
+  expiresIn: '1h',
+});
 
 describe('Protected Routes', () => {
   afterEach(() => {
@@ -29,13 +33,13 @@ describe('Protected Routes', () => {
   });
 
   test('PUT /users/:id with valid token', async () => {
-    getUserByEmail.mockResolvedValue(user);
-    updateUserEmail.mockResolvedValue({
+    (getUserByEmail as jest.Mock).mockResolvedValue(user);
+    (updateUserEmail as jest.Mock).mockResolvedValue({
       ...user,
       email: 'john.new@example.com',
     });
 
-    const response = await request(app)
+    const response = await supertest(app)
       .put(`/users/${user.id}`)
       .set('Authorization', `Bearer ${token}`)
       .send({ email: 'john.new@example.com' });
@@ -47,12 +51,11 @@ describe('Protected Routes', () => {
     });
   });
 
-  // Add more test cases for other routes and scenarios
   test('DELETE /users/:id with valid token', async () => {
-    getUserByEmail.mockResolvedValue(user);
-    deleteUser.mockResolvedValue();
+    (getUserByEmail as jest.Mock).mockResolvedValue(user);
+    (deleteUser as jest.Mock).mockResolvedValue(undefined);
 
-    const response = await request(app)
+    const response = await supertest(app)
       .delete(`/users/${user.id}`)
       .set('Authorization', `Bearer ${token}`);
 
@@ -62,13 +65,13 @@ describe('Protected Routes', () => {
 
   test('POST /users/:id/favorites with valid token', async () => {
     const favoritePlant = { plantId: '1', notes: 'Nice plant' };
-    getUserByEmail.mockResolvedValue(user);
-    addFavoritePlant.mockResolvedValue({
+    (getUserByEmail as jest.Mock).mockResolvedValue(user);
+    (addFavoritePlant as jest.Mock).mockResolvedValue({
       ...user,
       favorites: [favoritePlant],
     });
 
-    const response = await request(app)
+    const response = await supertest(app)
       .post(`/users/${user.id}/favorites`)
       .set('Authorization', `Bearer ${token}`)
       .send({ plant: favoritePlant });
@@ -79,10 +82,13 @@ describe('Protected Routes', () => {
 
   test('DELETE /users/:id/favorites/:plantId with valid token', async () => {
     const plantId = '1';
-    getUserByEmail.mockResolvedValue(user);
-    removeFavoritePlant.mockResolvedValue({ ...user, favorites: [] });
+    (getUserByEmail as jest.Mock).mockResolvedValue(user);
+    (removeFavoritePlant as jest.Mock).mockResolvedValue({
+      ...user,
+      favorites: [],
+    });
 
-    const response = await request(app)
+    const response = await supertest(app)
       .delete(`/users/${user.id}/favorites/${plantId}`)
       .set('Authorization', `Bearer ${token}`);
 
@@ -94,13 +100,13 @@ describe('Protected Routes', () => {
     const plantId = '1';
     const updatedNote = 'Updated note';
     const updatedPlant = { plantId, notes: updatedNote };
-    getUserByEmail.mockResolvedValue(user);
-    updateFavoritePlantNote.mockResolvedValue({
+    (getUserByEmail as jest.Mock).mockResolvedValue(user);
+    (updateFavoritePlantNote as jest.Mock).mockResolvedValue({
       ...user,
       favorites: [updatedPlant],
     });
 
-    const response = await request(app)
+    const response = await supertest(app)
       .patch(`/users/${user.id}/favorites/${plantId}`)
       .set('Authorization', `Bearer ${token}`)
       .send({ notes: updatedNote });
@@ -110,7 +116,7 @@ describe('Protected Routes', () => {
   });
 
   test('Access protected route without token', async () => {
-    const response = await request(app).put(`/users/${user.id}`).send({
+    const response = await supertest(app).put(`/users/${user.id}`).send({
       email: 'john.new@example.com',
     });
 
@@ -121,7 +127,7 @@ describe('Protected Routes', () => {
   });
 
   test('Access protected route with invalid token', async () => {
-    const response = await request(app)
+    const response = await supertest(app)
       .put(`/users/${user.id}`)
       .set('Authorization', 'Bearer invalidToken')
       .send({ email: 'john.new@example.com' });

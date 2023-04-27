@@ -1,16 +1,17 @@
-const request = require('supertest');
-const app = require('../../src/index');
-const { getUserByEmail } = require('../../src/db');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-require('dotenv').config();
+import supertest from 'supertest';
+import app from '../../src/index';
+import { User, getUserByEmail } from '../../src/db';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+dotenv.config();
 
 jest.mock('../../src/db');
 
 const plainPassword = 'password';
 const hashedPassword = bcrypt.hashSync(plainPassword, 10);
 
-const user = {
+const user: User = {
   id: '1',
   name: 'John Doe',
   email: 'john.doe@example.com',
@@ -18,13 +19,15 @@ const user = {
   favorites: [],
 };
 
-const generateToken = user => {
+const generateToken = (user: User): string => {
   const payload = {
     id: user.id,
     name: user.name,
     email: user.email,
   };
-  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+  return jwt.sign(payload, process.env.JWT_SECRET as string, {
+    expiresIn: '1h',
+  });
 };
 
 describe('Authentication', () => {
@@ -33,9 +36,9 @@ describe('Authentication', () => {
   });
 
   test('POST /login', async () => {
-    getUserByEmail.mockResolvedValue(user);
+    (getUserByEmail as jest.Mock).mockResolvedValue(user);
 
-    const response = await request(app).post('/login').send({
+    const response = await supertest(app).post('/login').send({
       email: 'john.doe@example.com',
       password: plainPassword,
     });
@@ -53,7 +56,7 @@ describe('Authentication', () => {
       res.status(200).json({ message: 'Authenticated' });
     });
 
-    const response = await request(app)
+    const response = await supertest(app)
       .get('/test-auth')
       .set('Authorization', `Bearer ${token}`);
 
@@ -63,7 +66,7 @@ describe('Authentication', () => {
   });
 
   test('authMiddleware with invalid token', async () => {
-    const response = await request(app)
+    const response = await supertest(app)
       .get('/test-auth')
       .set('Authorization', 'Bearer invalid_token');
 
@@ -76,7 +79,7 @@ describe('Authentication', () => {
   });
 
   test('authMiddleware with missing token', async () => {
-    const response = await request(app).get('/test-auth');
+    const response = await supertest(app).get('/test-auth');
 
     // Validate the response status and content
     expect(response.status).toBe(401);
