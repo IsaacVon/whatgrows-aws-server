@@ -15,8 +15,6 @@ on:
         required: true
       aws_region:
         required: true
-      dynamodb_endpoint:
-        required: true
 
 jobs:
   test-and-lint:
@@ -41,7 +39,6 @@ jobs:
         env:
           JWT_SECRET: ${{ secrets.jwt_secret }}
           AWS_REGION: ${{ secrets.aws_region }}
-          DYNAMODB_ENDPOINT: ${{ secrets.dynamodb_endpoint }}
 
       - name: Run integration tests
         run: npm test -- ./tests/integration
@@ -50,4 +47,3 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key_id }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_access_key }}
           AWS_REGION: ${{ secrets.aws_region }}
-          DYNAMODB_ENDPOINT: ${{ secrets.dynamodb_endpoint }}

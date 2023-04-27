@@ -1,8 +1,9 @@
-const request = require('supertest');
-const app = require('../../src/index');
-const { createUser, getUserByEmail } = require('../../src/db');
-const bcrypt = require('bcrypt');
-require('dotenv').config();
+import supertest from 'supertest';
+import app from '../../src/index';
+import { createUser, getUserByEmail } from '../../src/db';
+import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+dotenv.config();
 
 jest.mock('../../src/db');
 
@@ -23,9 +24,9 @@ describe('Public Routes', () => {
   });
 
   test('POST /users', async () => {
-    createUser.mockResolvedValue(user);
+    (createUser as jest.Mock).mockResolvedValue(user);
 
-    const response = await request(app).post('/users').send({
+    const response = await supertest(app).post('/users').send({
       name: 'John Doe',
       email: 'john.doe@example.com',
       password: 'password',
@@ -36,9 +37,11 @@ describe('Public Routes', () => {
   });
 
   test('POST /users with error', async () => {
-    createUser.mockRejectedValue(new Error('Error creating user'));
+    (createUser as jest.Mock).mockRejectedValue(
+      new Error('Error creating user')
+    );
 
-    const response = await request(app).post('/users').send({
+    const response = await supertest(app).post('/users').send({
       name: 'John Doe',
       email: 'john.doe@example.com',
       password: 'password',
@@ -49,9 +52,9 @@ describe('Public Routes', () => {
   });
 
   test('POST /login with valid credentials', async () => {
-    getUserByEmail.mockResolvedValue(user);
+    (getUserByEmail as jest.Mock).mockResolvedValue(user);
 
-    const response = await request(app).post('/login').send({
+    const response = await supertest(app).post('/login').send({
       email: 'john.doe@example.com',
       password: 'password',
     });
@@ -61,9 +64,9 @@ describe('Public Routes', () => {
   });
 
   test('POST /login with invalid email', async () => {
-    getUserByEmail.mockResolvedValue(null);
+    (getUserByEmail as jest.Mock).mockResolvedValue(null);
 
-    const response = await request(app).post('/login').send({
+    const response = await supertest(app).post('/login').send({
       email: 'wrong.email@example.com',
       password: 'password',
     });
@@ -73,9 +76,9 @@ describe('Public Routes', () => {
   });
 
   test('POST /login with invalid password', async () => {
-    getUserByEmail.mockResolvedValue(user);
+    (getUserByEmail as jest.Mock).mockResolvedValue(user);
 
-    const response = await request(app).post('/login').send({
+    const response = await supertest(app).post('/login').send({
       email: 'john.doe@example.com',
       password: 'wrong_password',
     });
@@ -85,9 +88,11 @@ describe('Public Routes', () => {
   });
 
   test('POST /login with error', async () => {
-    getUserByEmail.mockRejectedValue(new Error('Something went wrong'));
+    (getUserByEmail as jest.Mock).mockRejectedValue(
+      new Error('Something went wrong')
+    );
 
-    const response = await request(app).post('/login').send({
+    const response = await supertest(app).post('/login').send({
       email: 'john.doe@example.com',
       password: 'password',
     });
