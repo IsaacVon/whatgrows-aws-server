@@ -5,10 +5,6 @@ import bcrypt from 'bcryptjs';
 import 'dotenv/config';
 
 const region = process.env.AWS_REGION;
-const endpoint = process.env.DYNAMODB_ENDPOINT;
-
-// the endpoint was undefined because i forgot to import the dotenv/config.. when i fixed it.. the console error matched the github one.
-// console.log('region: ', region);
 
 config.update({ region });
 
@@ -46,9 +42,6 @@ interface UserUpdates {
   name: string;
   password: string;
   favorites: FavoritePlant[];
-}
-if (endpoint) {
-  console.log(`Using DynamoDB endpoint: ${endpoint}`);
 }
 
 async function connect(): Promise<void> {
