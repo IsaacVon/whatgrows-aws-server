@@ -39,6 +39,7 @@ jobs:
         run: |
           mkdir deploy-package
           cp -r dist deploy-package
+          cp index.mjs deploy-package # Add this line
           cp -r node_modules deploy-package
           cd deploy-package
           zip -r ../lambda-package.zip .
