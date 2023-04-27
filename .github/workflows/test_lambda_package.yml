@@ -1,7 +1,7 @@
-name: Deploy to AWS Lambda
+name: Test Lambda Package
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
@@ -16,7 +16,7 @@ jobs:
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       aws_region: ${{ secrets.AWS_REGION }}
 
-  deploy:
+  package:
     needs: test
     runs-on: ubuntu-latest
 
@@ -42,12 +42,3 @@ jobs:
           cp -r node_modules deploy-package
           cd deploy-package
           zip -r ../lambda-package.zip .
-
-      - name: Deploy to AWS Lambda
-        uses: appleboy/lambda-action@v0.1.6
-        with:
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: us-east-1
-          function_name: WhatGrowsServer
-          zip_file: lambda-package.zip

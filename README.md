@@ -4,39 +4,36 @@ This project provides an API for the WhatGrows application. The API is built usi
 
 ## Database Interfaces
 
-\```typescript
-const WhatGrowsUsers = 'WhatGrowsUsers';
-let connected = false;
-
+```typescript
 interface FavoritePlant {
-\_id: string;
-plantId: string;
-commonName: string;
-notes: string;
-image: string;
-plantUrl: string;
+  _id: string;
+  plantId: string;
+  commonName: string;
+  notes: string;
+  image: string;
+  plantUrl: string;
 }
 
 export interface User {
-id: string;
-email: string;
-name: string;
-password: string;
-favorites: FavoritePlant[];
+  id: string;
+  email: string;
+  name: string;
+  password: string;
+  favorites: FavoritePlant[];
 }
 
 export interface NewUser {
-email: string;
-name: string;
-password: string;
+  email: string;
+  name: string;
+  password: string;
 }
 
 interface UserUpdates {
-name: string;
-password: string;
-favorites: FavoritePlant[];
+  name: string;
+  password: string;
+  favorites: FavoritePlant[];
 }
-\```
+```
 
 ## API Routes
 
